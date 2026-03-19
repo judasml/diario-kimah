@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Diario Kimah">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#002244">
+<title>Diario de Kimah — MK Business Solutions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #002244;
+    --green: #49e61a;
+    --gray: #a5acaf;
+    --bg: #f0f4f8;
+    --card: #ffffff;
+    --text: #002244;
+    --text-sub: #566573;
+    --text-light: #a5acaf;
+    --border: #e0e4e8;
+    --red: #e63946;
+    --orange: #f4a261;
+    --teal: #2a9d8f;
+    --blue: #4a90d9;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'Libre Franklin', -apple-system, sans-serif;
+    background: linear-gradient(160deg, #f0f4f8, #e8edf2 50%, #f5f7fa);
+    min-height: 100vh;
+    color: var(--text);
+  }
+  button, input, select, textarea { font-family: inherit; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--navy) !important; }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #002244 0%, #003366 60%, #002244 100%);
+    padding: 24px 20px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(73,230,26,0.03) 40px, rgba(73,230,26,0.03) 80px);
+  }
+  .header-inner { position: relative; max-width: 800px; margin: 0 auto; }
+  .header-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .title-area { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .title-bar { width: 4px; height: 30px; background: var(--green); border-radius: 2px; flex-shrink: 0; }
+  .title { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
+  .subtitle { margin: 3px 0 0 14px; font-size: 12px; color: var(--gray); font-weight: 300; letter-spacing: 0.5px; }
+  .header-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .btn-header-ghost {
+    background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px; padding: 9px 13px; font-size: 13px; font-weight: 500; cursor: pointer;
+  }
+  .btn-header-ghost:active { background: rgba(255,255,255,0.2); }
+  .btn-new {
+    background: var(--green); color: var(--navy); border: none; border-radius: 8px;
+    padding: 9px 18px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .btn-back {
+    background: rgba(255,255,255,0.15); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 18px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .stats-row { display: flex; gap: 14px; margin-top: 16px; flex-wrap: wrap; }
+  .stat { display: flex; align-items: center; gap: 5px; }
+  .stat-num { font-size: 20px; font-weight: 700; font-family: 'Playfair Display', serif; }
+  .stat-label { font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; }
+  .export-msg {
+    margin-top: 10px; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    display: none;
+  }
+  .export-msg.show { display: block; }
+  .export-msg.success { background: rgba(73,230,26,0.15); color: var(--green); }
+  .export-msg.error { background: rgba(230,57,70,0.15); color: #ff6b6b; }
+
+  /* CONTENT */
+  .content { max-width: 800px; margin: 0 auto; padding: 20px 16px 60px; }
+
+  /* FILTERS */
+  .filters { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+  .filters input[type="text"] {
+    flex: 1; min-width: 140px; padding: 9px 14px; border-radius: 8px;
+    border: 1.5px solid var(--border); font-size: 14px; color: var(--text); background: #fff;
+  }
+  .filters select {
+    padding: 8px 10px; border-radius: 8px; border: 1.5px solid var(--border);
+    font-size: 12px; color: var(--text-sub); background: #fff; cursor: pointer;
+  }
+
+  /* EMPTY */
+  .empty { text-align: center; padding: 50px 20px; color: var(--gray); }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty h3 { font-size: 16px; color: var(--text-sub); font-weight: 500; margin-bottom: 6px; }
+  .empty p { font-size: 13px; }
+
+  /* ENTRY CARDS */
+  .entries { display: flex; flex-direction: column; gap: 10px; }
+  .entry-card {
+    background: #fff; border-radius: 10px; border: 1px solid rgba(0,34,68,0.06);
+    box-shadow: 0 1px 6px rgba(0,34,68,0.04); overflow: hidden;
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  .entry-card.expanded { border-color: var(--navy); box-shadow: 0 4px 20px rgba(0,34,68,0.1); }
+  .entry-head { padding: 14px 16px; cursor: pointer; display: flex; align-items: flex-start; gap: 10px; }
+  .entry-type-icon {
+    width: 34px; height: 34px; border-radius: 8px; display: flex;
+    align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;
+  }
+  .entry-info { flex: 1; min-width: 0; }
+  .entry-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 5px; }
+  .entry-tags { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .tag {
+    padding: 2px 8px; border-radius: 5px; font-size: 11px; font-weight: 500; display: inline-block;
+    white-space: nowrap;
+  }
+  .entry-date { font-size: 10px; color: var(--gray); margin-left: auto; white-space: nowrap; }
+  .entry-arrow { font-size: 14px; color: var(--gray); transition: transform 0.2s; flex-shrink: 0; margin-top: 4px; }
+  .entry-card.expanded .entry-arrow { transform: rotate(180deg); }
+
+  .entry-body { padding: 0 16px 16px; border-top: 1px solid #f0f4f8; display: none; }
+  .entry-card.expanded .entry-body { display: block; }
+  .entry-desc { font-size: 14px; color: var(--text-sub); line-height: 1.65; margin: 14px 0 10px; white-space: pre-wrap; }
+  .entry-context {
+    background: #f8f9fb; border-radius: 8px; padding: 10px 14px;
+    border-left: 3px solid var(--green); margin-bottom: 10px;
+  }
+  .entry-context label { font-size: 11px; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; }
+  .entry-context p { font-size: 13px; color: var(--text-sub); margin-top: 4px; white-space: pre-wrap; }
+
+  .status-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; }
+  .status-bar span { font-size: 12px; color: var(--gray); font-weight: 500; }
+  .status-btn {
+    padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;
+    border: 1px solid #e0e0e0; background: #fff; color: var(--gray); font-weight: 400;
+  }
+  .status-btn.active { font-weight: 600; color: var(--text); border-width: 2px; }
+
+  .notes-section { margin-bottom: 12px; }
+  .notes-section > span { font-size: 12px; font-weight: 600; color: var(--text); }
+  .note-item { background: #f8f9fb; border-radius: 6px; padding: 8px 12px; margin-top: 6px; }
+  .note-item .note-date { font-size: 10px; color: var(--gray); }
+  .note-item p { font-size: 13px; color: var(--text-sub); margin-top: 3px; white-space: pre-wrap; }
+
+  .note-input-row { display: flex; gap: 8px; }
+  .note-input-row input {
+    flex: 1; padding: 8px 12px; border-radius: 8px; border: 1.5px solid var(--border);
+    font-size: 13px; color: var(--text);
+  }
+  .note-input-row button {
+    background: var(--navy); color: #fff; border: none; border-radius: 8px;
+    padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+
+  .entry-actions { display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; }
+  .btn-action {
+    background: transparent; color: var(--text-sub); border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 6px 14px; font-size: 12px; cursor: pointer;
+  }
+  .btn-delete { color: var(--red); border-color: rgba(230,57,70,0.3); }
+
+  /* FORM */
+  .form-card {
+    background: #fff; border-radius: 12px; padding: 24px;
+    box-shadow: 0 2px 16px rgba(0,34,68,0.08); border: 1px solid rgba(0,34,68,0.06);
+  }
+  .form-card h2 { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 18px; }
+  .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 6px; letter-spacing: 0.3px; }
+  .form-input {
+    width: 100%; padding: 10px 14px; border-radius: 8px; border: 1.5px solid var(--border);
+    font-size: 14px; color: var(--text); margin-bottom: 14px;
+  }
+  textarea.form-input { resize: vertical; line-height: 1.5; }
+  .type-btns { display: flex; gap: 8px; margin-bottom: 16px; }
+  .type-btn {
+    flex: 1; padding: 10px 10px; border-radius: 8px; border: 2px solid #e8edf2;
+    background: #fff; cursor: pointer; font-size: 13px; color: var(--text); text-align: center;
+  }
+  .type-btn.active { font-weight: 600; }
+  .cat-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .cat-btn {
+    padding: 6px 12px; border-radius: 20px; border: 1px solid #d8dde3;
+    background: #fff; color: var(--text-sub); cursor: pointer; font-size: 12px;
+  }
+  .cat-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); border-width: 2px; }
+  .pri-btns { display: flex; gap: 8px; margin-bottom: 16px; }
+  .pri-btn {
+    flex: 1; padding: 8px; border-radius: 8px; border: 2px solid #e8edf2;
+    background: #fff; cursor: pointer; font-size: 13px; color: var(--text); text-align: center;
+  }
+  .pri-btn.active { font-weight: 600; }
+  .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; padding-top: 18px; border-top: 1px solid #f0f4f8; }
+  .btn-primary {
+    background: var(--navy); color: #fff; border: none; border-radius: 8px;
+    padding: 11px 22px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .btn-secondary {
+    background: transparent; color: var(--text-sub); border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 11px 22px; font-size: 14px; font-weight: 500; cursor: pointer;
+  }
+
+  .footer-hint {
+    text-align: center; margin-top: 24px; padding: 14px; background: rgba(0,34,68,0.03); border-radius: 8px;
+  }
+  .footer-hint p { font-size: 12px; color: var(--gray); }
+
+  @media (max-width: 480px) {
+    .title { font-size: 20px; }
+    .header { padding: 18px 14px 14px; }
+    .content { padding: 14px 10px 50px; }
+    .stats-row { gap: 10px; }
+    .form-card { padding: 18px; }
+    .type-btns { flex-wrap: wrap; }
+    .type-btn { flex: none; width: calc(50% - 4px); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div>
+        <div class="title-area">
+          <div class="title-bar"></div>
+          <h1 class="title">Diario de Kimah</h1>
+        </div>
+        <p class="subtitle">Problemas · Ideas · Observaciones — RR.HH. & Desarrollo Organizacional</p>
+      </div>
+      <div class="header-actions" id="headerActions">
+        <button class="btn-header-ghost" id="btnCopy" style="display:none" onclick="handleCopy()">📋 Copiar</button>
+        <button class="btn-header-ghost" id="btnDownload" style="display:none" onclick="handleDownload()">⬇ Descargar</button>
+        <button class="btn-new" id="btnNew" onclick="showForm()">+ Nueva Entrada</button>
+      </div>
+    </div>
+    <div class="stats-row" id="statsRow"></div>
+    <div class="export-msg" id="exportMsg"></div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content" id="mainContent"></div>
+
+<script>
+// ── DATA ──
+const CATEGORIES = [
+  { id: "clima", label: "Clima Laboral", icon: "🌡️" },
+  { id: "reclutamiento", label: "Reclutamiento", icon: "🔍" },
+  { id: "capacitacion", label: "Capacitación", icon: "📚" },
+  { id: "legal", label: "Legal / Normativo", icon: "⚖️" },
+  { id: "liderazgo", label: "Liderazgo", icon: "🎯" },
+  { id: "procesos", label: "Procesos Internos", icon: "⚙️" },
+  { id: "comunicacion", label: "Comunicación", icon: "💬" },
+  { id: "otro", label: "Otro", icon: "📌" },
+];
+const PRIORITIES = [
+  { id: "alta", label: "Alta", color: "#e63946" },
+  { id: "media", label: "Media", color: "#f4a261" },
+  { id: "baja", label: "Baja", color: "#2a9d8f" },
+];
+const TYPES = [
+  { id: "problema", label: "Problema", icon: "⚠️", color: "#e63946" },
+  { id: "idea", label: "Idea", icon: "💡", color: "#49e61a" },
+  { id: "observacion", label: "Observación", icon: "👁️", color: "#4a90d9" },
+];
+const STATUS = [
+  { id: "pendiente", label: "Pendiente", color: "#a5acaf" },
+  { id: "en_analisis", label: "En Análisis", color: "#f4a261" },
+  { id: "resuelto", label: "Resuelto", color: "#49e61a" },
+];
+
+const STORAGE_KEY = "kimah-diario-entries";
+let entries = [];
+let currentView = "list";
+let editingId = null;
+let expandedId = null;
+let filters = { type: "todos", category: "todos", status: "todos", search: "" };
+
+// ── HELPERS ──
+function formatDate(iso) {
+  const d = new Date(iso);
+  const months = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+  return `${d.getDate().toString().padStart(2,"0")} ${months[d.getMonth()]} ${d.getFullYear()} · ${d.getHours().toString().padStart(2,"0")}:${d.getMinutes().toString().padStart(2,"0")}`;
+}
+function find(arr, id) { return arr.find(x => x.id === id) || {}; }
+function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); } catch(e) { console.error(e); } }
+function load() { try { const d = localStorage.getItem(STORAGE_KEY); if (d) entries = JSON.parse(d); } catch(e) {} }
+
+function getStats() {
+  return {
+    total: entries.length,
+    problemas: entries.filter(e => e.type === "problema").length,
+    ideas: entries.filter(e => e.type === "idea").length,
+    pendientes: entries.filter(e => e.status === "pendiente").length,
+    resueltos: entries.filter(e => e.status === "resuelto").length,
+  };
+}
+
+function getFiltered() {
+  return entries.filter(e => {
+    if (filters.type !== "todos" && e.type !== filters.type) return false;
+    if (filters.category !== "todos" && e.category !== filters.category) return false;
+    if (filters.status !== "todos" && e.status !== filters.status) return false;
+    if (filters.search) {
+      const s = filters.search.toLowerCase();
+      return e.title.toLowerCase().includes(s) || e.description.toLowerCase().includes(s);
+    }
+    return true;
+  });
+}
+
+// ── EXPORT ──
+function buildExportText() {
+  if (!entries.length) return "";
+  let t = "═══════════════════════════════════\n";
+  t += "  DIARIO DE KIMAH — MK Business Solutions\n";
+  t += "  Exportado: " + formatDate(new Date().toISOString()) + "\n";
+  t += "  Total entradas: " + entries.length + "\n";
+  t += "═══════════════════════════════════\n\n";
+  entries.forEach((e, i) => {
+    t += `── Entrada ${i+1} ──────────────────\n`;
+    t += `Título: ${e.title}\n`;
+    t += `Tipo: ${find(TYPES,e.type).label} | Categoría: ${find(CATEGORIES,e.category).label} | Prioridad: ${find(PRIORITIES,e.priority).label} | Estado: ${find(STATUS,e.status).label}\n`;
+    t += `Fecha: ${formatDate(e.createdAt)}\n`;
+    t += `\nDescripción:\n${e.description}\n`;
+    if (e.context) t += `\nContexto:\n${e.context}\n`;
+    if (e.notes && e.notes.length) {
+      t += `\nNotas de seguimiento:\n`;
+      e.notes.forEach((n, j) => { t += `  ${j+1}. [${formatDate(n.date)}] ${n.text}\n`; });
+    }
+    t += "\n";
+  });
+  const s = getStats();
+  t += "═══════════════════════════════════\n";
+  t += `  Resumen: ${s.problemas} problemas, ${s.ideas} ideas, ${s.pendientes} pendientes, ${s.resueltos} resueltos\n`;
+  t += "═══════════════════════════════════\n";
+  return t;
+}
+
+function showExportMsg(text, type) {
+  const el = document.getElementById("exportMsg");
+  el.textContent = text;
+  el.className = "export-msg show " + type;
+  setTimeout(() => { el.className = "export-msg"; }, 3000);
+}
+
+function handleCopy() {
+  const text = buildExportText();
+  if (!text) { showExportMsg("No hay entradas para exportar", "error"); return; }
+  try {
+    navigator.clipboard.writeText(text).then(() => {
+      showExportMsg("✓ Copiado — pégalo en WhatsApp o correo para Marco", "success");
+    }).catch(() => fallbackCopy(text));
+  } catch(e) { fallbackCopy(text); }
+}
+function fallbackCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text; document.body.appendChild(ta);
+  ta.select(); document.execCommand("copy");
+  document.body.removeChild(ta);
+  showExportMsg("✓ Copiado — pégalo en WhatsApp o correo para Marco", "success");
+}
+
+function handleDownload() {
+  const text = buildExportText();
+  if (!text) { showExportMsg("No hay entradas para exportar", "error"); return; }
+  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url;
+  a.download = `diario-kimah-${new Date().toISOString().slice(0,10)}.txt`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  showExportMsg("✓ Descargado — envíalo por WhatsApp o correo a Marco", "success");
+}
+
+// ── ACTIONS ──
+function addEntry(form) {
+  const entry = { ...form, id: Date.now().toString(), status: "pendiente", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), notes: [] };
+  entries.unshift(entry); save(); showList();
+}
+function updateEntry(id, form) {
+  entries = entries.map(e => e.id === id ? { ...e, ...form, updatedAt: new Date().toISOString() } : e);
+  save(); showList();
+}
+function deleteEntry(id) {
+  if (!confirm("¿Eliminar esta entrada?")) return;
+  entries = entries.filter(e => e.id !== id);
+  expandedId = null; save(); render();
+}
+function changeStatus(id, status) {
+  entries = entries.map(e => e.id === id ? { ...e, status, updatedAt: new Date().toISOString() } : e);
+  save(); render();
+}
+function addNote(id) {
+  const input = document.getElementById("note-input-" + id);
+  if (!input || !input.value.trim()) return;
+  entries = entries.map(e => e.id === id ? { ...e, notes: [...(e.notes||[]), { text: input.value.trim(), date: new Date().toISOString() }], updatedAt: new Date().toISOString() } : e);
+  save(); render();
+}
+function toggleExpand(id) { expandedId = expandedId === id ? null : id; render(); }
+function editEntry(id) {
+  editingId = id; currentView = "form"; render();
+}
+
+// ── NAVIGATION ──
+function showForm() { editingId = null; currentView = "form"; render(); }
+function showList() { editingId = null; currentView = "list"; expandedId = null; render(); }
+
+// ── RENDER ──
+function renderStats() {
+  const s = getStats();
+  const items = [
+    { label: "Total", value: s.total, color: "#fff" },
+    { label: "Problemas", value: s.problemas, color: "#e63946" },
+    { label: "Ideas", value: s.ideas, color: "#49e61a" },
+    { label: "Pendientes", value: s.pendientes, color: "#f4a261" },
+    { label: "Resueltos", value: s.resueltos, color: "#2a9d8f" },
+  ];
+  document.getElementById("statsRow").innerHTML = items.map(i =>
+    `<div class="stat"><span class="stat-num" style="color:${i.color}">${i.value}</span><span class="stat-label">${i.label}</span></div>`
+  ).join("");
+}
+
+function renderHeader() {
+  const hasSomething = entries.length > 0;
+  document.getElementById("btnCopy").style.display = (hasSomething && currentView === "list") ? "" : "none";
+  document.getElementById("btnDownload").style.display = (hasSomething && currentView === "list") ? "" : "none";
+  const btnNew = document.getElementById("btnNew");
+  if (currentView === "form") {
+    btnNew.textContent = "← Volver";
+    btnNew.className = "btn-back";
+    btnNew.onclick = showList;
+  } else {
+    btnNew.textContent = "+ Nueva Entrada";
+    btnNew.className = "btn-new";
+    btnNew.onclick = showForm;
+  }
+}
+
+function renderList() {
+  const filtered = getFiltered();
+  let html = '';
+
+  // Filters
+  html += `<div class="filters">
+    <input type="text" id="searchInput" placeholder="Buscar..." value="${filters.search}" oninput="filters.search=this.value;render()">
+    <select onchange="filters.type=this.value;render()">
+      <option value="todos"${filters.type==="todos"?" selected":""}>Todos los tipos</option>
+      ${TYPES.map(t => `<option value="${t.id}"${filters.type===t.id?" selected":""}>${t.icon} ${t.label}</option>`).join("")}
+    </select>
+    <select onchange="filters.category=this.value;render()">
+      <option value="todos"${filters.category==="todos"?" selected":""}>Todas las categorías</option>
+      ${CATEGORIES.map(c => `<option value="${c.id}"${filters.category===c.id?" selected":""}>${c.icon} ${c.label}</option>`).join("")}
+    </select>
+    <select onchange="filters.status=this.value;render()">
+      <option value="todos"${filters.status==="todos"?" selected":""}>Todos los estados</option>
+      ${STATUS.map(s => `<option value="${s.id}"${filters.status===s.id?" selected":""}>${s.label}</option>`).join("")}
+    </select>
+  </div>`;
+
+  if (filtered.length === 0) {
+    html += `<div class="empty"><div class="empty-icon">📓</div>
+      <h3>${entries.length===0?"El diario está vacío":"Sin resultados para estos filtros"}</h3>
+      <p>${entries.length===0?"Registra tu primer problema, idea u observación.":"Ajusta los filtros o busca otro término."}</p></div>`;
+  } else {
+    html += '<div class="entries">';
+    filtered.forEach(entry => {
+      const tp = find(TYPES, entry.type);
+      const cat = find(CATEGORIES, entry.category);
+      const pri = find(PRIORITIES, entry.priority);
+      const st = find(STATUS, entry.status);
+      const exp = expandedId === entry.id;
+
+      html += `<div class="entry-card${exp?" expanded":""}">
+        <div class="entry-head" onclick="toggleExpand('${entry.id}')">
+          <div class="entry-type-icon" style="background:${tp.color}14">${tp.icon}</div>
+          <div class="entry-info">
+            <div class="entry-title">${esc(entry.title)}</div>
+            <div class="entry-tags">
+              <span class="tag" style="background:${pri.color}18;color:${pri.color};border:1px solid ${pri.color}30">${pri.label}</span>
+              <span class="tag" style="background:#f0f4f8;color:#566573">${cat.icon} ${cat.label}</span>
+              <span class="tag" style="background:${st.color}18;color:${st.id==="pendiente"?"#566573":st.color}">${st.label}</span>
+              ${(entry.notes||[]).length ? `<span class="tag" style="background:#e8edf2;color:#566573">💬 ${entry.notes.length}</span>` : ""}
+              <span class="entry-date">${formatDate(entry.createdAt)}</span>
+            </div>
+          </div>
+          <div class="entry-arrow">▾</div>
+        </div>`;
+
+      if (exp) {
+        html += `<div class="entry-body" style="display:block">
+          <div style="padding:14px 0">
+            <p class="entry-desc">${esc(entry.description)}</p>
+            ${entry.context ? `<div class="entry-context"><label>Contexto</label><p>${esc(entry.context)}</p></div>` : ""}
+            <div class="status-bar"><span>Estado:</span>
+              ${STATUS.map(s => `<button class="status-btn${entry.status===s.id?" active":""}" style="${entry.status===s.id ? `border-color:${s.color};background:${s.color}20;border-width:2px` : ""}" onclick="changeStatus('${entry.id}','${s.id}')">${s.label}</button>`).join("")}
+            </div>
+            ${(entry.notes||[]).length ? `<div class="notes-section"><span>Notas de seguimiento:</span>
+              ${entry.notes.map(n => `<div class="note-item"><span class="note-date">${formatDate(n.date)}</span><p>${esc(n.text)}</p></div>`).join("")}
+            </div>` : ""}
+            <div class="note-input-row">
+              <input id="note-input-${entry.id}" placeholder="Agregar nota de seguimiento..." onkeydown="if(event.key==='Enter')addNote('${entry.id}')">
+              <button onclick="addNote('${entry.id}')">+ Nota</button>
+            </div>
+            <div class="entry-actions">
+              <button class="btn-action" onclick="editEntry('${entry.id}')">✏️ Editar</button>
+              <button class="btn-action btn-delete" onclick="deleteEntry('${entry.id}')">🗑 Eliminar</button>
+            </div>
+          </div>
+        </div>`;
+      }
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  if (entries.length > 0) {
+    html += `<div class="footer-hint"><p>💡 Cuando quieras analizar estas entradas, toca <strong>📋 Copiar</strong> y pégalo en WhatsApp para Marco.</p></div>`;
+  }
+
+  return html;
+}
+
+function renderForm() {
+  const e = editingId ? entries.find(x => x.id === editingId) : null;
+  const f = e ? { type: e.type, category: e.category, priority: e.priority, title: e.title, description: e.description, context: e.context || "" }
+    : { type: "problema", category: "clima", priority: "media", title: "", description: "", context: "" };
+
+  return `<div class="form-card">
+    <h2>${editingId ? "Editar Entrada" : "Nueva Entrada"}</h2>
+
+    <label class="form-label">Tipo</label>
+    <div class="type-btns">
+      ${TYPES.map(t => `<button class="type-btn${f.type===t.id?" active":""}" data-field="type" data-value="${t.id}"
+        style="${f.type===t.id ? `border-color:${t.color};background:${t.color}12` : ""}"
+        onclick="formSelect('type','${t.id}')">${t.icon} ${t.label}</button>`).join("")}
+    </div>
+
+    <label class="form-label">Categoría</label>
+    <div class="cat-btns">
+      ${CATEGORIES.map(c => `<button class="cat-btn${f.category===c.id?" active":""}" onclick="formSelect('category','${c.id}')">${c.icon} ${c.label}</button>`).join("")}
+    </div>
+
+    <label class="form-label">Prioridad</label>
+    <div class="pri-btns">
+      ${PRIORITIES.map(p => `<button class="pri-btn${f.priority===p.id?" active":""}"
+        style="${f.priority===p.id ? `border-color:${p.color};background:${p.color}18` : ""}"
+        onclick="formSelect('priority','${p.id}')">${p.label}</button>`).join("")}
+    </div>
+
+    <label class="form-label">Título *</label>
+    <input class="form-input" id="formTitle" placeholder="Ej: Rotación alta en depto. de ventas" value="${esc(f.title)}">
+
+    <label class="form-label">Descripción *</label>
+    <textarea class="form-input" id="formDesc" rows="5" placeholder="Describe con detalle qué está pasando, qué observas, o qué se te ocurrió...">${esc(f.description)}</textarea>
+
+    <label class="form-label">Contexto adicional <span style="color:var(--gray);font-weight:400">(opcional)</span></label>
+    <textarea class="form-input" id="formContext" rows="3" placeholder="¿Con qué cliente? ¿En qué proyecto? ¿Qué detonó esta situación?">${esc(f.context)}</textarea>
+
+    <div class="form-actions">
+      <button class="btn-secondary" onclick="showList()">Cancelar</button>
+      <button class="btn-primary" onclick="submitForm()">${editingId ? "Guardar Cambios" : "Registrar Entrada"}</button>
+    </div>
+  </div>`;
+}
+
+let formState = { type: "problema", category: "clima", priority: "media" };
+
+function formSelect(field, value) {
+  formState[field] = value;
+  render();
+  // Restore text inputs after re-render
+}
+
+function submitForm() {
+  const title = document.getElementById("formTitle").value.trim();
+  const description = document.getElementById("formDesc").value.trim();
+  const context = document.getElementById("formContext").value.trim();
+  if (!title || !description) { alert("Título y descripción son requeridos."); return; }
+  const data = { type: formState.type, category: formState.category, priority: formState.priority, title, description, context };
+  if (editingId) { updateEntry(editingId, data); }
+  else { addEntry(data); }
+}
+
+function esc(str) { if (!str) return ""; return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+function render() {
+  renderStats();
+  renderHeader();
+  const main = document.getElementById("mainContent");
+
+  if (currentView === "form") {
+    // Save current text values before re-render
+    const prevTitle = document.getElementById("formTitle")?.value;
+    const prevDesc = document.getElementById("formDesc")?.value;
+    const prevCtx = document.getElementById("formContext")?.value;
+
+    if (editingId) {
+      const e = entries.find(x => x.id === editingId);
+      if (e) { formState.type = e.type; formState.category = e.category; formState.priority = e.priority; }
+    }
+    main.innerHTML = renderForm();
+
+    // Restore typed text
+    if (prevTitle !== undefined && !editingId) {
+      document.getElementById("formTitle").value = prevTitle;
+      document.getElementById("formDesc").value = prevDesc;
+      document.getElementById("formContext").value = prevCtx;
+    }
+  } else {
+    main.innerHTML = renderList();
+    // Restore search
+    const si = document.getElementById("searchInput");
+    if (si) si.value = filters.search;
+  }
+}
+
+// ── INIT ──
+load();
+formState = { type: "problema", category: "clima", priority: "media" };
+render();
+</script>
+</body>
+</html>
